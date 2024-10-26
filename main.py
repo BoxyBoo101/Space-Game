@@ -73,6 +73,7 @@ def gameover():
         clock.tick(60)
     time.sleep(4)
     run = False
+    quit()
 spaceship = Spaceship()
 rocket = Rocket()
 
@@ -99,7 +100,18 @@ while run:
         alien.move()
         if alien.rect.right < 0:
             aliens.remove(alien)
-            gameover()
+            pygame.mixer.Channel.pause(musicchannel)
+            offset = 900
+            time.sleep(1)
+            oversound.play()
+            time.sleep(0.1)
+            for i in range(150):
+                offset -= 6
+                display.blit(gameoverimg, (0, offset))
+                pygame.display.update()
+                clock.tick(60)
+            time.sleep(4)
+            run = False
 
 #       if alien.rect.colliderect(spaceship.rect):
 #            aliens.remove(aliessssn)
