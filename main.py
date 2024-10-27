@@ -2,7 +2,7 @@ import pygame
 import random
 import time
 import pygame
-
+ 
 pygame.init()
 clock = pygame.time.Clock()
 SCREENWIDTH = 1200
@@ -16,6 +16,8 @@ backround = pygame.mixer.Sound("Assets/backround.mp3")
 launchsound.set_volume(0.2)
 boom.set_volume(0.4)
 inf = 999999999
+score = 0
+font = pygame.font.Font("Assets/8bitfont.ttf", 16)
 
 musicchannel = pygame.mixer.find_channel()
 musicchannel.play(backround, inf)
@@ -41,9 +43,9 @@ oversound = pygame.mixer.Sound("Assets/gameover.mp3")
 class Alien:
     def __init__(self):
         self.rect = alienimg.get_rect(x = SCREENWIDTH, y = random.randint(0, SCREENHEIGHT - 100))
-        self.speed = random.randint(4, 7)
+        self.speed = random.randint((200 + score), (350 + score))
     def move(self):
-        self.rect.x -= self.speed
+        self.rect.x -= self.speed / 50
 
 class Spaceship:
     def __init__(self):
@@ -74,6 +76,19 @@ def gameover():
     time.sleep(4)
     run = False
     quit()
+
+def read_high_score(filename):
+    try:
+        with open(filename, 'r') as file:
+            return int(file.read())
+    except FileNotFoundError:
+        return 
+high_score_file = "Assets/data.txt"
+high_score = read_high_score(high_score_file)
+def write_high_score(filename, score):
+    with open(filename, 'w') as file:
+        file.write(str(score))
+
 spaceship = Spaceship()
 rocket = Rocket()
 
@@ -113,14 +128,16 @@ while run:
             time.sleep(4)
             run = False
 
-#       if alien.rect.colliderect(spaceship.rect):
-#            aliens.remove(aliessssn)
-#            boom.play()
 
         if alien.rect.colliderect(rocket.rect):
             if IsRocket != False:
                 aliens.remove(alien)
+                score += 5
                 boom.play()
+                print(high_score)
+                if score > high_score:
+                    write_high_score(high_score_file, score)
+                    high_score = score
 
     if IsRocket == True:
         rocket.rocketfire()
@@ -139,6 +156,12 @@ while run:
     display.blit(spaceship.image, spaceship.rect)
     for alien in aliens:
         display.blit(alienimg, alien.rect)
+    scoretext = font.render("Score: " + str(score), True, (255, 255, 255))
+    scoretext_rect = scoretext.get_rect(center=(96, 32))
+    display.blit(scoretext, scoretext_rect)  # Draw the text
+    highscoretext = font.render("High Score: " + str(high_score), True, (255, 255, 255))
+    highscoretext_rect = highscoretext.get_rect(center=(1050, 32))
+    display.blit(highscoretext, highscoretext_rect)  # Draw the text
 
     pygame.display.flip()
     clock.tick(60)
